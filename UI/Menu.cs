@@ -37,31 +37,40 @@ public class Menu
                 switch (option)
                 {
                     case "1":
-                        CreateBook();
+												CreateBook();
+												Thread.Sleep(1000);
                         break;
                     case "2":
-                        ListAllBooks();
+												ListAllBooks();
+												Thread.Sleep(1000);
                         break;
                     case "3":
-                        GetBookById();
+												GetBookById();
+												Thread.Sleep(1000);
                         break;
                     case "4":
-                        GetBooksByTitle();
+												GetBooksByTitle();
+												Thread.Sleep(1000);
                         break;
                     case "5":
-                        GetBooksByAuthor();
+												GetBooksByAuthor();
+												Thread.Sleep(1000);
                         break;
                     case "6":
-                        BorrowBook();
+												BorrowBook();
+												Thread.Sleep(1000);
                         break;
                     case "7":
-                        ReturnBook();
+												ReturnBook();
+												Thread.Sleep(1000);
                         break;
                     case "8":
-                        SendBookToRenovation();
+												SendBookToRenovation();
+												Thread.Sleep(1000);
                         break;
                     case "9":
-                        DeleteBook();
+												DeleteBook();
+												Thread.Sleep(1000);
                         break;
                     case "0":
                         return;
@@ -69,7 +78,7 @@ public class Menu
             }
             catch (Exception e)
             {
-                Console.WriteLine($"{e}");
+                ColorChanges.WriteInColor($"\n{e}\n", ConsoleColor.Red);
             }
         }
     }
@@ -108,7 +117,7 @@ public class Menu
         PrintHeader();
         PrintBook(book);
         ColorChanges.WriteInColor(
-            $"-------------------------------------------------------------------------------------------------------------",
+            $"-------------------------------------------------------------------------------------------------------------\n",
             ConsoleColor.Green
         );
         return book;
