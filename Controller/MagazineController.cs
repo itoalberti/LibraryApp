@@ -13,32 +13,6 @@ namespace LibraryApp.Controller
         public MagazineController(IPublicationRepository magazineRepo) =>
             _magazineRepo = magazineRepo;
 
-        // public IReadOnlyList<Magazine> GetBooksByAuthor(string searchTerm)
-        // {
-        //     if (string.IsNullOrWhiteSpace(searchTerm))
-        //         throw new ArgumentException("🚫 You must type something to search the books 🚫");
-
-        //     var compareInfo = CultureInfo.InvariantCulture.CompareInfo;
-        //     var books = _bookRepo
-        //         .ListAll()
-        //         .OfType<Book>()
-        //         .Where(book =>
-        //             compareInfo.IndexOf(
-        //                 book.Author.Trim(),
-        //                 searchTerm.Trim(),
-        //                 CompareOptions.IgnoreCase | CompareOptions.IgnoreNonSpace
-        //             ) >= 0
-        //         )
-        //         .ToList();
-        //     if (!books.Any())
-        //         throw new InvalidOperationException("🚫 No books by this author were found 🚫");
-        //     return books.AsReadOnly();
-        // }
-
-        // 		public Book? GetBookByISBN(isbn)
-        // {
-        // }
-
         public Magazine CreateMagazine(Magazine magazine)
         {
             if (magazine is null)
