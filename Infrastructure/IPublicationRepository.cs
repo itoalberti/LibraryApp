@@ -10,6 +10,6 @@ namespace LibraryApp.Repository
 
         // IReadOnlyList<Publication> SearchByTitle();
         void UpdateStatus(Publication pub, PublicationStatus status);
-        // void Delete(Publication pub);
+        void Delete(Publication pub);
     }
 }

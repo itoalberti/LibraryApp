@@ -27,6 +27,6 @@ namespace LibraryApp.Repository
             existing.UpdateStatus(status);
         }
 
-        // public void Delete(Publication pub) => _publications.Remove(pub);
+        public void Delete(Publication pub) => _publications.Remove(pub);
     }
 }

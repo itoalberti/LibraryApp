@@ -59,14 +59,14 @@ namespace LibraryApp.Controller
             _repository.UpdateStatus(pubToUpdate, newStatus);
         }
 
-        // public void DeletePublication(Publication pubToDelete)
-        // {
-        //     if (pubToDelete.Status != PublicationStatus.Available)
-        //         throw new InvalidOperationException(
-        //             "🚫 Only items that are available in the library can be deleted 🚫"
-        //         );
-        //     _repository.Delete(pubToDelete);
-        // }
+        public void DeletePublication(Publication pubToDelete)
+        {
+            if (pubToDelete.Status == PublicationStatus.Borrowed)
+                throw new InvalidOperationException(
+                    "🚫 Only items that are not borrowed can be deleted 🚫"
+                );
+            _repository.Delete(pubToDelete);
+        }
     }
 
     public static class EnumExtensions

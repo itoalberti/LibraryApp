@@ -41,22 +41,18 @@ public class Menu
                     case "1":
                         CreatePublication();
                         Thread.Sleep(1000);
-
                         break;
                     case "2":
                         PrintAll();
                         Thread.Sleep(1000);
-
                         break;
                     case "3":
                         GetItemById();
                         Thread.Sleep(1000);
-
                         break;
                     case "4":
                         GetItemsByTitle();
                         Thread.Sleep(1000);
-
                         break;
                     case "5":
                         // GetBooksByAuthor();
@@ -64,16 +60,17 @@ public class Menu
                     case "6":
                         LendItem();
                         Thread.Sleep(1000);
-
                         break;
                     case "7":
-                        // ReturnItem();
+                        ReturnItem();
+                        Thread.Sleep(1000);
                         break;
                     case "8":
-                        // SendItemToRenovation();
+                        SendItemToRenovation();
+                        Thread.Sleep(1000);
                         break;
                     case "9":
-                        // DeleteItem();
+                        DeleteItem();
                         break;
                     case "0":
                         return;
@@ -179,11 +176,6 @@ public class Menu
         if (!int.TryParse(Console.ReadLine(), out int id))
             throw new FormatException("ID must be an integer");
         var pub = _controller.GetPublicationByID(id);
-        // Console.WriteLine(
-        ColorChanges.WriteInColor(
-            $"\n----------------------------------------------- ✔️ WE FOUND YOUR ITEM ✔️ -----------------------------------------------\n",
-            ConsoleColor.Green
-        );
         PrintHeader();
         PrintItem(pub);
         PrintFooter();
@@ -254,23 +246,49 @@ public class Menu
     //     UpdateStatus(Publication.Status.Borrowed, "✔️ BOOK SUCCESSFULLY BORROWED ✔️");
 
     // public void ReturnItem() =>
-    //     ChangeBookStatus(Publication.BookStatus.Available, "✔️ BOOK SUCCESSFULLY RETURNED ✔️");
+    //     ChangePublicationStatus(PublicationStatus.Available, "✔️ BOOK SUCCESSFULLY RETURNED ✔️");
 
-    // public void SendItemToRenovation() =>
-    //     ChangeBookStatus(Publication.BookStatus.InRenovation, "✔️ BOOK SENT TO RENOVATION ✔️");
+    public void ReturnItem()
+    {
+        Publication pub = GetItemById();
+        if (
+            pub.Status != PublicationStatus.Borrowed
+            || pub.Status != PublicationStatus.InRenovation
+        )
+            throw new InvalidOperationException(
+                "🚫 This item is already available in the library 🚫"
+            );
+        _controller.UpdatePublicationStatus(pub, PublicationStatus.Available);
+        ColorChanges.WriteInColor(
+            $"\n----------------------------------------------- ✔️ ITEM SUCCESSFULLY RETURNED ✔️ -----------------------------------------------\n",
+            ConsoleColor.Green
+        );
+    }
 
-    // public void DeleteItem()
-    // {
-    //     Console.Write($"Type in the ID of the book to be deleted: ");
-    //     if (!int.TryParse(Console.ReadLine(), out int id))
-    //         throw new KeyNotFoundException("THERE IS NOT A BOOK WITH THIS ID");
-    //     Publication book = _controller.GetBookById(id);
-    //     _controller.DeleteBook(book);
-    //     ColorChanges.WriteInColor(
-    //         $"\n✔️ BOOK \"{book.Title}\" WAS DELETED SUCCESSFULLY ✔️\n",
-    //         ConsoleColor.Green
-    //     );
-    // }
+    public void SendItemToRenovation()
+    {
+        Publication pub = GetItemById();
+        if (pub.Status == PublicationStatus.InRenovation)
+            throw new InvalidOperationException("🚫 This item is already in renovation 🚫");
+        _controller.UpdatePublicationStatus(pub, PublicationStatus.InRenovation);
+        ColorChanges.WriteInColor(
+            $"\n----------------------------------------------- ✔️ ITEM WAS SENT TO RENOVATION ✔️ -----------------------------------------------\n",
+            ConsoleColor.Green
+        );
+    }
+
+    public void DeleteItem()
+    {
+        Console.Write($"Type in the ID of the book to be deleted: ");
+        if (!int.TryParse(Console.ReadLine(), out int id))
+            throw new FormatException("🚫 Item ID must be an integer 🚫");
+        Publication pub = _controller.GetPublicationByID(id);
+        _controller.DeletePublication(pub);
+        ColorChanges.WriteInColor(
+            $"\n✔️ {pub.GetType().Name} \"{pub.Title}\" was deleted successfully ✔️\n",
+            ConsoleColor.Green
+        );
+    }
 
     public void PrintAllItems(IReadOnlyList<Publication> publications)
     {
