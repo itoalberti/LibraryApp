@@ -1,3 +1,5 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace LibraryApp.Domain
 {
     public enum PublicationStatus
@@ -5,6 +7,8 @@ namespace LibraryApp.Domain
         Available = 1,
         Reserved = 2,
         Borrowed = 3,
+
+        [Display(Name = "In Renovation")]
         InRenovation = 4,
     }
 }

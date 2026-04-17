@@ -50,6 +50,31 @@ namespace LibraryApp.Controller
             return pubs.AsReadOnly();
         }
 
+        public IReadOnlyList<Publication> GetByAuthor(string author)
+        {
+            if (string.IsNullOrWhiteSpace(author))
+                throw new ArgumentException(
+                    "🚫 You must type the author's name to search the library 🚫"
+                );
+            var compareInfo = CultureInfo.InvariantCulture.CompareInfo;
+            var pubs = _repository
+                .ListAll()
+                .OfType<Book>()
+                .Where(pub =>
+                    compareInfo.IndexOf(
+                        pub.Author.Trim(),
+                        author.Trim(),
+                        CompareOptions.IgnoreCase | CompareOptions.IgnoreNonSpace
+                    ) >= 0
+                )
+                .ToList();
+            if (!pubs.Any())
+                throw new InvalidOperationException(
+                    $"🚫 No books with author \"{author}\" were found 🚫"
+                );
+            return pubs.AsReadOnly();
+        }
+
         public void UpdatePublicationStatus(Publication pubToUpdate, PublicationStatus newStatus)
         {
             if (pubToUpdate.Status == newStatus)
