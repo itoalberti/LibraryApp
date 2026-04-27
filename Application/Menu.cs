@@ -43,34 +43,34 @@ public class Menu
                 {
                     case "1":
                         CreatePublication();
-                        Thread.Sleep(1000);
+                        Thread.Sleep(600);
                         break;
                     case "2":
                         PrintAll();
-                        Thread.Sleep(1000);
+                        Thread.Sleep(600);
                         break;
                     case "3":
                         GetItemById();
-                        Thread.Sleep(1000);
+                        Thread.Sleep(600);
                         break;
                     case "4":
                         GetItemsByTitle();
-                        Thread.Sleep(1000);
+                        Thread.Sleep(600);
                         break;
                     case "5":
                         GetBooksByAuthor();
                         break;
                     case "6":
                         LendItem();
-                        Thread.Sleep(1000);
+                        Thread.Sleep(600);
                         break;
                     case "7":
                         ReturnItem();
-                        Thread.Sleep(1000);
+                        Thread.Sleep(600);
                         break;
                     case "8":
                         SendItemToRenovation();
-                        Thread.Sleep(1000);
+                        Thread.Sleep(600);
                         break;
                     case "9":
                         DeleteItem();
@@ -85,6 +85,8 @@ public class Menu
             }
         }
     }
+
+    public void ExecuteAction() { }
 
     public void CreatePublication()
     {
@@ -182,33 +184,37 @@ public class Menu
     {
         Console.Write($"Type in the publication title: ");
         string title = Console.ReadLine();
-        var pubs = _controller.GetByTitle(title);
+        var items = _controller.Find(p =>
+            p.Title.Contains(title, StringComparison.OrdinalIgnoreCase)
+        );
         ColorChanges.WriteInColor(
             $"\n----------------------------------------------------- ✔️ ITEMS FOUND ✔️ ------------------------------------------------------\n",
             ConsoleColor.Green
         );
         PrintHeader();
-        PrintAllItems(pubs);
+        PrintAllItems(items);
     }
 
     public void GetBooksByAuthor()
     {
         Console.Write($"Type in the name of the author of the book: ");
         string author = Console.ReadLine().Trim();
-        var books = _controller.GetByAuthor(author);
+        var books = _controller.Find(p =>
+            p is Book b && b.Author.Contains(author, StringComparison.OrdinalIgnoreCase)
+        );
         ColorChanges.WriteInColor(
             $"\n------------------------------------------------------- ✔️ BOOKS FOUND -------------------------------------------------------\n",
             ConsoleColor.Green
         );
         PrintHeader();
-        foreach (Book book in books)
-            PrintBook(book);
-        PrintFooter();
+        // foreach (Book book in books)
+        //     PrintBook(book);
+        PrintAllItems(books);
     }
 
     public void PrintAll()
     {
-        var allItems = _controller.ListAllPublications();
+        var allItems = _controller.Find(p => p.Id != 0);
         ColorChanges.WriteInColor(
             $"\n------------------------------------------------------ ALL PUBLICATIONS ------------------------------------------------------\n",
             ConsoleColor.Green

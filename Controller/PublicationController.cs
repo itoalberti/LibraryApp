@@ -14,6 +14,14 @@ namespace LibraryApp.Controller
 
         public Publication CreatePublication(Publication pub) => _repository.Create(pub);
 
+        public IReadOnlyList<Publication> Find(Func<Publication, bool> criteria)
+        {
+            var publications = _repository.ListAll().Where(criteria).ToList();
+            if (!publications.Any())
+                throw new InvalidOperationException("🚫 No items were found 🚫");
+            return publications.AsReadOnly();
+        }
+
         public IReadOnlyList<Publication> ListAllPublications()
         {
             var allPubs = _repository.ListAll();
