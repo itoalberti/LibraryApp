@@ -14,10 +14,10 @@ public class Menu
         while (true)
         {
             ColorChanges.WriteInColor(
-                $"\n ============== 📚 📖 LIBRARY APP 📖 📚 ==============\n",
+                $"\n ============== 📚 📖 LIBRARY APP 📖 📚 ==============",
                 ConsoleColor.Red
             );
-            ColorChanges.WriteInColor($"OPTIONS", ConsoleColor.Cyan);
+            ColorChanges.WriteInColor($"\nOPTIONS", ConsoleColor.Cyan);
             ColorChanges.WriteInColor($"\n1  | Add a publication", ConsoleColor.Cyan);
             ColorChanges.WriteInColor($"\n2  | List all publications", ConsoleColor.Cyan);
             ColorChanges.WriteInColor($"\n3  | Find publication by ID", ConsoleColor.Cyan);
@@ -42,38 +42,34 @@ public class Menu
                 switch (option)
                 {
                     case "1":
-                        CreatePublication();
-                        Thread.Sleep(600);
+                        ExecuteAction(CreatePublication, "\n✔️ Item was created successfully ✔️\n");
                         break;
                     case "2":
-                        PrintAll();
-                        Thread.Sleep(600);
+                        ExecuteAction(PrintAll, "\n");
                         break;
                     case "3":
-                        GetItemById();
-                        Thread.Sleep(600);
+                        ExecuteAction(() => GetItemById(), "\n✔️ Your item was found ✔️\n");
                         break;
                     case "4":
-                        GetItemsByTitle();
-                        Thread.Sleep(600);
+                        ExecuteAction(GetItemsByTitle, "\n✔️ Items found with this title ✔️\n");
                         break;
                     case "5":
-                        GetBooksByAuthor();
+                        ExecuteAction(GetBooksByAuthor, "\n✔️ Books found with this author ✔️\n");
                         break;
                     case "6":
-                        LendItem();
-                        Thread.Sleep(600);
+                        ExecuteAction(LendItem, "\n✔️ Item was lent successfully ✔️\n");
                         break;
                     case "7":
-                        ReturnItem();
-                        Thread.Sleep(600);
+                        ExecuteAction(ReturnItem, "\n✔️ Item was returned successfully ✔️\n");
                         break;
                     case "8":
-                        SendItemToRenovation();
-                        Thread.Sleep(600);
+                        ExecuteAction(
+                            SendItemToRenovation,
+                            "\n✔️ Item was sent to renovation ✔️\n"
+                        );
                         break;
                     case "9":
-                        DeleteItem();
+                        ExecuteAction(DeleteItem, "\n✔️ Item was deleted sucessfully ✔️\n");
                         break;
                     case "0":
                         return;
@@ -86,7 +82,19 @@ public class Menu
         }
     }
 
-    public void ExecuteAction() { }
+    public void ExecuteAction(Action action, string successMessage)
+    {
+        try
+        {
+            action();
+            ColorChanges.WriteInColor($"{successMessage}", ConsoleColor.Green);
+            Thread.Sleep(600);
+        }
+        catch (Exception e)
+        {
+            ColorChanges.WriteInColor($"\n{e.Message}\n", ConsoleColor.Red);
+        }
+    }
 
     public void CreatePublication()
     {
@@ -128,12 +136,9 @@ public class Menu
             throw new FormatException("🚫 Publication year must be an integer 🚫");
         Book book = new(title, name, year);
         _controller.CreatePublication(book);
-        ColorChanges.WriteInColor(
-            $"\n------------------------------------------- ✔️ BOOK WAS CREATED SUCCESSFULLY! ✔️ ---------------------------------------------\n",
-            ConsoleColor.Green
-        );
         PrintHeader();
         PrintBook(book);
+        PrintLine();
     }
 
     public void CreateMagazine(string title)
@@ -146,12 +151,9 @@ public class Menu
             throw new FormatException("🚫 Publication year must be an integer 🚫");
         Magazine magazine = new(title, issue, year);
         _controller.CreatePublication(magazine);
-        ColorChanges.WriteInColor(
-            $"\n----------------------------------------- ✔️ MAGAZINE WAS CREATED SUCCESSFULLY! ✔️ ------------------------------------------\n",
-            ConsoleColor.Green
-        );
         PrintHeader();
         PrintMagazine(magazine);
+        PrintLine();
     }
 
     public void CreateNewspaper(string title)
@@ -161,12 +163,9 @@ public class Menu
             throw new FormatException("🚫 You must type in a date 🚫");
         Newspaper newspaper = new(title, issueDate);
         _controller.CreatePublication(newspaper);
-        ColorChanges.WriteInColor(
-            $"\n----------------------------------------- ✔️ NEWSPAPER WAS CREATED SUCCESSFULLY! ✔️ ------------------------------------------\n",
-            ConsoleColor.Green
-        );
         PrintHeader();
         PrintNewspaper(newspaper);
+        PrintLine();
     }
 
     public Publication GetItemById()
@@ -177,6 +176,7 @@ public class Menu
         var pub = _controller.GetPublicationByID(id);
         PrintHeader();
         PrintItem(pub);
+        PrintLine();
         return pub;
     }
 
@@ -186,13 +186,11 @@ public class Menu
         string title = Console.ReadLine();
         var items = _controller.Find(p =>
             p.Title.Contains(title, StringComparison.OrdinalIgnoreCase)
-        );
-        ColorChanges.WriteInColor(
-            $"\n----------------------------------------------------- ✔️ ITEMS FOUND ✔️ ------------------------------------------------------\n",
-            ConsoleColor.Green
+            && !string.IsNullOrWhiteSpace(title)
         );
         PrintHeader();
         PrintAllItems(items);
+        PrintLine();
     }
 
     public void GetBooksByAuthor()
@@ -200,39 +198,30 @@ public class Menu
         Console.Write($"Type in the name of the author of the book: ");
         string author = Console.ReadLine().Trim();
         var books = _controller.Find(p =>
-            p is Book b && b.Author.Contains(author, StringComparison.OrdinalIgnoreCase)
-        );
-        ColorChanges.WriteInColor(
-            $"\n------------------------------------------------------- ✔️ BOOKS FOUND -------------------------------------------------------\n",
-            ConsoleColor.Green
+            p is Book b
+            && b.Author.Contains(author, StringComparison.OrdinalIgnoreCase)
+            && !string.IsNullOrWhiteSpace(author)
         );
         PrintHeader();
-        // foreach (Book book in books)
-        //     PrintBook(book);
         PrintAllItems(books);
+        PrintLine();
     }
 
     public void PrintAll()
     {
         var allItems = _controller.Find(p => p.Id != 0);
-        ColorChanges.WriteInColor(
-            $"\n------------------------------------------------------ ALL PUBLICATIONS ------------------------------------------------------\n",
-            ConsoleColor.Green
-        );
         PrintHeader();
-        PrintAllItems(allItems);
+        foreach (Publication pub in allItems)
+            PrintItem(pub);
+        PrintLine();
     }
 
     public void LendItem()
     {
         Publication pub = GetItemById();
         if (pub.Status != PublicationStatus.Available)
-            throw new InvalidOperationException("This item is not available for lending.");
+            throw new InvalidOperationException("🚫 This item is not available for lending 🚫");
         _controller.UpdatePublicationStatus(pub, PublicationStatus.Borrowed);
-        ColorChanges.WriteInColor(
-            $"\n----------------------------------------------- ✔️ ITEM SUCCESSFULLY LENT ✔️ -------------------------------------------------\n",
-            ConsoleColor.Green
-        );
     }
 
     public void ReturnItem()
@@ -243,10 +232,6 @@ public class Menu
                 "🚫 This item is already available in the library 🚫"
             );
         _controller.UpdatePublicationStatus(pub, PublicationStatus.Available);
-        ColorChanges.WriteInColor(
-            $"\n---------------------------------------------- ✔️ ITEM SUCCESSFULLY RETURNED ✔️ ----------------------------------------------\n",
-            ConsoleColor.Green
-        );
     }
 
     public void SendItemToRenovation()
@@ -255,10 +240,6 @@ public class Menu
         if (pub.Status == PublicationStatus.InRenovation)
             throw new InvalidOperationException("🚫 This item is already in renovation 🚫");
         _controller.UpdatePublicationStatus(pub, PublicationStatus.InRenovation);
-        ColorChanges.WriteInColor(
-            $"\n--------------------------------------------- ✔️ ITEM WAS SENT TO RENOVATION ✔️ ----------------------------------------------\n",
-            ConsoleColor.Green
-        );
     }
 
     public void DeleteItem()
@@ -268,39 +249,27 @@ public class Menu
             throw new FormatException("🚫 Item ID must be an integer 🚫");
         Publication pub = _controller.GetPublicationByID(id);
         _controller.DeletePublication(pub);
-        ColorChanges.WriteInColor(
-            $"\n✔️ {pub.GetType().Name} \"{pub.Title}\" was deleted successfully ✔️\n",
-            ConsoleColor.Green
-        );
     }
 
     public void PrintAllItems(IReadOnlyList<Publication> publications)
     {
         foreach (Publication pub in publications)
             PrintItem(pub);
-        PrintFooter();
-    }
-
-    public void PrintAllBooks(IReadOnlyList<Book> books)
-    {
-        foreach (Book book in books)
-            PrintBook(book);
-        PrintFooter();
     }
 
     public void PrintBook(Book book) =>
-        Console.WriteLine(
-            $"{book.Id, 3} | {book.Title, -45}| Book      | {book.Author, -24}|            | {book.Year, 4} | {book.Status.GetDisplayName(), -14}|"
+        Console.Write(
+            $"\n{book.Id, 3} | {book.Title, -45}| Book      | {book.Author, -24}|            | {book.Year, 4} | {book.Status.GetDisplayName(), -14}|"
         );
 
     public void PrintMagazine(Magazine magazine) =>
-        Console.WriteLine(
-            $"{magazine.Id, 3} | {magazine.Title, -45}| Magazine  |                         | {magazine.Issue, -10} | {magazine.Year, 4} | {magazine.Status.GetDisplayName(), -14}|"
+        Console.Write(
+            $"\n{magazine.Id, 3} | {magazine.Title, -45}| Magazine  |                         | {magazine.Issue, -10} | {magazine.Year, 4} | {magazine.Status.GetDisplayName(), -14}|"
         );
 
     public void PrintNewspaper(Newspaper newspaper) =>
-        Console.WriteLine(
-            $"{newspaper.Id, 3} | {newspaper.Title, -45}| Newspaper |                         | {newspaper.IssueDate, -10} | {newspaper.Year, 4} | {newspaper.Status.GetDisplayName(), -14}|"
+        Console.Write(
+            $"\n{newspaper.Id, 3} | {newspaper.Title, -45}| Newspaper |                         | {newspaper.IssueDate, -10} | {newspaper.Year, 4} | {newspaper.Status.GetDisplayName(), -14}|"
         );
 
     public void PrintItem(Publication pub)
@@ -321,15 +290,18 @@ public class Menu
         }
     }
 
-    public void PrintHeader() =>
+    public void PrintHeader()
+    {
+        PrintLine();
         ColorChanges.WriteInColor(
-            $" ID | TITLE                                        | TYPE      | AUTHOR                  |   ISSUE    | YEAR | STATUS        |\n",
+            $"\n ID | TITLE                                        | TYPE      | AUTHOR                  |   ISSUE    | YEAR | STATUS        |",
             ConsoleColor.Cyan
         );
+    }
 
-    public void PrintFooter() =>
+    public void PrintLine() =>
         ColorChanges.WriteInColor(
-            $"------------------------------------------------------------------------------------------------------------------------------\n",
+            $"\n------------------------------------------------------------------------------------------------------------------------------",
             ConsoleColor.Green
         );
 }
